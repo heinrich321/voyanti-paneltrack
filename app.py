@@ -125,8 +125,12 @@ def ha_discovery(data):
                 "device": device
             }
 
-            # Add device_class based on parameter name
-            if "temperature" in parameter.lower():
+            # Special configuration for text-based fields
+            if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
+                disc_payload["value_template"] = "{{ value }}"
+            
+            # Add device_class based on parameter name for standard types
+            elif "temperature" in parameter.lower():
                 disc_payload["device_class"] = "temperature"
             elif "voltage" in parameter.lower():
                 disc_payload["device_class"] = "voltage"
@@ -141,10 +145,10 @@ def ha_discovery(data):
             discovery_topic = f"{config['mqtt_ha_discovery_topic']}/sensor/kehua/{parameter.replace(' ', '_').lower()}/config"
             print(f"Publishing discovery message for {parameter}: {disc_payload}")
             client.publish(discovery_topic, json.dumps(disc_payload), qos=0, retain=True)
-
-            # Publish the initial value of the parameter
+            
+            # Publish the initial value of the parameter as a plain string for text fields
             state_topic = disc_payload["state_topic"]
-            client.publish(state_topic, json.dumps(details["value"]), qos=0, retain=True)
+            client.publish(state_topic, str(details["value"]), qos=0, retain=True)
 
     else:
         print("HA Discovery Disabled")
