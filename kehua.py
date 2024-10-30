@@ -160,16 +160,24 @@ class KehuaClient:
                 value = self.read_ascii(start_address, length)
             elif data_type == 'UINT16':
                 raw_values = self.read_uint16(start_address, length)
-                value = [v * scale for v in raw_values] if raw_values is not None else None
+                if raw_values is not None:
+                    # Apply scale and round to 1 decimal place
+                    value = [round(v * scale, 1) for v in raw_values]
+                else:
+                    value = None
             elif data_type == 'INT16':
                 raw_values = self.read_int16(start_address, length)
-                value = [v * scale for v in raw_values] if raw_values is not None else None
+                if raw_values is not None:
+                    # Apply scale and round to 1 decimal place
+                    value = [round(v * scale, 1) for v in raw_values]
+                else:
+                    value = None
             elif data_type == 'UINT32':
                 raw_value = self.read_uint32(start_address)
-                value = raw_value * scale if raw_value is not None else None
+                value = round(raw_value * scale, 1) if raw_value is not None else None
             elif data_type == 'INT32':
                 raw_value = self.read_int32(start_address)
-                value = raw_value * scale if raw_value is not None else None
+                value = round(raw_value * scale, 1) if raw_value is not None else None
             else:
                 print(f"Unsupported data type: {data_type}")
                 value = None
@@ -182,7 +190,7 @@ class KehuaClient:
                 return_data[name] = { 
                     'value': value,
                     'unit': unit
-                 }
+                }
         return return_data
     
     def read_version(self):

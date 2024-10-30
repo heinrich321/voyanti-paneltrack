@@ -110,7 +110,7 @@ def ha_discovery(data):
         device = {}
         device['manufacturer'] = "Kehua"
         device['model'] = kehua_model
-        device['identifiers'] = "kehua_" + kehua_model
+        device['identifiers'] = ["kehua_" + kehua_model]
         device['name'] = kehua_model
         disc_payload['name'] = kehua_model
         disc_payload['device'] = device
