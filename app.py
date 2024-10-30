@@ -158,10 +158,10 @@ def publish_state_data(data):
         value = details["value"]
         
         # Special handling for known text fields to ensure they are published as plain strings
-        if parameter in ["Device Model", "Hardware Version", "HMI Version"]:
-            # Publish as plain string, assuming 'value' contains the text directly
+        if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
+            # Publish as plain string, without JSON encoding
             client.publish(state_topic, value, qos=0, retain=True)
-            continue  # Move to the next item after publishing the text field
+            continue  # Skip to the next item after publishing the text field
         
         # Handle arrays for other fields (e.g., Daily Charge, Daily Discharge)
         if isinstance(value, list):
