@@ -154,15 +154,21 @@ def publish_state_data(data):
         # Construct the state topic
         state_topic = f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}"
         
-        # Extract and publish only a single, simple value
+        # Extract the value from details
         value = details["value"]
         
-        # Unwrap single-element lists
-        if isinstance(value, list) and len(value) == 1:
-            value = value[0]
-
-        # Publish the value and add a debug print to confirm
-        print(f"Publishing to {state_topic}: {value}")
+        # Special handling for known text fields to ensure they are published as plain strings
+        if parameter in ["Device Model", "Hardware Version", "HMI Version"]:
+            # Publish as plain string, assuming 'value' contains the text directly
+            client.publish(state_topic, value, qos=0, retain=True)
+            continue  # Move to the next item after publishing the text field
+        
+        # Handle arrays for other fields (e.g., Daily Charge, Daily Discharge)
+        if isinstance(value, list):
+            # Select the most relevant element, assuming the second element here
+            value = value[1] if len(value) > 1 else value[0]
+        
+        # Publish the final value as JSON for numerical values
         client.publish(state_topic, json.dumps(value), qos=0, retain=True)
 
 print("Connecting to Kehua...")
