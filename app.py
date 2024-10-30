@@ -121,13 +121,16 @@ def ha_discovery(data):
                 "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
                 "availability_topic": availability_topic,  # Add availability topic
-                "unit_of_measurement": details["unit"],
                 "device": device
             }
 
-            # Special configuration for text-based fields - exclude device_class
+            # Special configuration for text-based fields
             if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
                 disc_payload["value_template"] = "{{ value }}"
+                # Explicitly ensure these fields are treated as text
+                disc_payload.pop("unit_of_measurement", None)  # Remove if it exists
+                disc_payload.pop("device_class", None)  # Remove if it exists
+                disc_payload.pop("state_class", None)  # Ensure no state_class is set
             
             # Cumulative metrics like Total Charge and Total Discharge
             elif parameter in ["Total Charge", "Total Discharge"]:
