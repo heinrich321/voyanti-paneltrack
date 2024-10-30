@@ -154,8 +154,21 @@ def publish_state_data(data):
         # Construct the state topic
         state_topic = f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}"
         
-        # Publish the actual data to the state topic
-        client.publish(state_topic, json.dumps(details["value"]), qos=0, retain=True)
+        # Extract and publish only a single, simple value
+        value = details["value"]
+        
+        # If value is a list and contains only one element, extract that single element
+        if isinstance(value, list) and len(value) == 1:
+            value = value[0]
+        
+        # If value is a dictionary, extract a primary value if applicable (e.g., use a specific key)
+        # Note: Adjust based on how data might be structured if dictionaries are used
+        if isinstance(value, dict):
+            # Example: Use the primary key of the dictionary, or customize as needed
+            value = value.get("primary_key", value)  # Replace "primary_key" with actual key if needed
+        
+        # Publish the simple value as a string to ensure compatibility with MQTT and Home Assistant
+        client.publish(state_topic, json.dumps(value), qos=0, retain=True)
 
 print("Connecting to Kehua...")
 kehua_client, kehua_client_connected = kehua_connect()
