@@ -96,38 +96,50 @@ def kehua_connect():
 
 
 def ha_discovery(data):
-
     global ha_discovery_enabled
 
     if ha_discovery_enabled:
         
         print("Publishing HA Discovery topic...")
 
-        disc_payload = {}
+        # Define the device information
+        device = {
+            "manufacturer": "Kehua",
+            "model": kehua_model,
+            "identifiers": ["kehua_" + kehua_model],
+            "name": kehua_model
+        }
 
-        disc_payload['availability_topic'] = config['mqtt_base_topic'] + "/availability"
+        # Define the base availability topic for the device
+        availability_topic = config['mqtt_base_topic'] + "/availability"
 
-        device = {}
-        device['manufacturer'] = "Kehua"
-        device['model'] = kehua_model
-        device['identifiers'] = ["kehua_" + kehua_model]
-        device['name'] = kehua_model
-        disc_payload['name'] = kehua_model
-        disc_payload['device'] = device
-        client.publish(config['mqtt_ha_discovery_topic']+"/binary_sensor/kehua/" + disc_payload['name'].replace(' ', '_') + "/config",json.dumps(disc_payload),qos=0, retain=True)
-
+        # Publish a discovery message for each parameter in data
         for parameter, details in data.items():
-            # Construct discovery payload
+            # Construct discovery payload for each sensor
             disc_payload = {
                 "name": parameter,
                 "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
+                "availability_topic": availability_topic,  # Add availability topic
                 "unit_of_measurement": details["unit"],
                 "device": device
             }
 
+            # Add device_class based on parameter name
+            if "temperature" in parameter.lower():
+                disc_payload["device_class"] = "temperature"
+            elif "voltage" in parameter.lower():
+                disc_payload["device_class"] = "voltage"
+            elif "current" in parameter.lower():
+                disc_payload["device_class"] = "current"
+            elif "power" in parameter.lower():
+                disc_payload["device_class"] = "power"
+            elif "frequency" in parameter.lower():
+                disc_payload["device_class"] = "frequency"
+
             # Publish the discovery payload to the MQTT discovery topic
             discovery_topic = f"{config['mqtt_ha_discovery_topic']}/sensor/kehua/{parameter.replace(' ', '_').lower()}/config"
+            print(f"Publishing discovery message for {parameter}: {disc_payload}")
             client.publish(discovery_topic, json.dumps(disc_payload), qos=0, retain=True)
 
             # Publish the initial value of the parameter
