@@ -121,15 +121,19 @@ def ha_discovery(data):
                 "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
                 "availability_topic": availability_topic,  # Add availability topic
+                "unit_of_measurement": details["unit"],
                 "device": device
             }
 
-            # Special configuration for text-based fields
+            # Special configuration for text-based fields - exclude device_class
             if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
                 disc_payload["value_template"] = "{{ value }}"
-                # Remove unit_of_measurement and device_class to ensure Home Assistant doesn't treat it as numeric
-                disc_payload.pop("unit_of_measurement", None)  # Remove if it exists
-                disc_payload.pop("device_class", None)  # Remove if it exists
+            
+            # Cumulative metrics like Total Charge and Total Discharge
+            elif parameter in ["Total Charge", "Total Discharge"]:
+                disc_payload["state_class"] = "total_increasing"
+                disc_payload["device_class"] = "energy"  # Optional, if you want it categorized as energy
+                disc_payload["unit_of_measurement"] = "kWh"  # Assuming energy in kWh
             
             # Add device_class and unit_of_measurement based on parameter name for standard types
             elif "temperature" in parameter.lower():
@@ -179,6 +183,10 @@ def publish_state_data(data):
         if isinstance(value, list):
             # Select the most relevant element, assuming the second element here
             value = value[1] if len(value) > 1 else value[0]
+        
+        # Round larger values to integer if they are over a certain threshold
+        if isinstance(value, float) and abs(value) > 500:
+            value = round(value)  # Remove decimals for larger values
         
         # Publish the final value as JSON for numerical values
         client.publish(state_topic, json.dumps(value), qos=0, retain=True)
