@@ -121,25 +121,32 @@ def ha_discovery(data):
                 "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
                 "availability_topic": availability_topic,  # Add availability topic
-                "unit_of_measurement": details["unit"],
                 "device": device
             }
 
             # Special configuration for text-based fields
             if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
                 disc_payload["value_template"] = "{{ value }}"
+                # Remove unit_of_measurement and device_class to ensure Home Assistant doesn't treat it as numeric
+                disc_payload.pop("unit_of_measurement", None)  # Remove if it exists
+                disc_payload.pop("device_class", None)  # Remove if it exists
             
-            # Add device_class based on parameter name for standard types
+            # Add device_class and unit_of_measurement based on parameter name for standard types
             elif "temperature" in parameter.lower():
                 disc_payload["device_class"] = "temperature"
+                disc_payload["unit_of_measurement"] = "°C"
             elif "voltage" in parameter.lower():
                 disc_payload["device_class"] = "voltage"
+                disc_payload["unit_of_measurement"] = "V"
             elif "current" in parameter.lower():
                 disc_payload["device_class"] = "current"
+                disc_payload["unit_of_measurement"] = "A"
             elif "power" in parameter.lower():
                 disc_payload["device_class"] = "power"
+                disc_payload["unit_of_measurement"] = "kW"  # Use appropriate units for power metrics
             elif "frequency" in parameter.lower():
                 disc_payload["device_class"] = "frequency"
+                disc_payload["unit_of_measurement"] = "Hz"
 
             # Publish the discovery payload to the MQTT discovery topic
             discovery_topic = f"{config['mqtt_ha_discovery_topic']}/sensor/kehua/{parameter.replace(' ', '_').lower()}/config"
@@ -163,7 +170,8 @@ def publish_state_data(data):
         
         # Special handling for known text fields to ensure they are published as plain strings
         if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
-            # Publish as plain string, without JSON encoding
+            # Ensure the value is a plain string
+            value = str(value)
             client.publish(state_topic, value, qos=0, retain=True)
             continue  # Skip to the next item after publishing the text field
         
