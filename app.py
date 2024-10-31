@@ -94,7 +94,6 @@ def kehua_connect():
         print("Kehua error connecting: %s" % msg)
         return False
 
-
 def ha_discovery(data):
     global ha_discovery_enabled
 
@@ -102,12 +101,12 @@ def ha_discovery(data):
         
         print("Publishing HA Discovery topic...")
 
-        # Define the device information
+        # Define the device information with a generic identifier
         device = {
             "manufacturer": "Kehua",
-            "model": kehua_model,
-            "identifiers": ["kehua_" + kehua_model],
-            "name": kehua_model
+            "model": kehua_model,  # Use the actual model name
+            "identifiers": ["bcs_"],  # Generic identifier for the model
+            "name": kehua_model  # Display the correct model name
         }
 
         # Define the base availability topic for the device
@@ -115,8 +114,8 @@ def ha_discovery(data):
 
         # Publish a discovery message for each parameter in data
         for parameter, details in data.items():
-            # Shorten the display name
-            short_name = parameter.replace("bcs500k_a ", "")  # Adjust this as needed for specific cases
+            # Shorten the display name for each sensor
+            short_name = parameter.replace("bcs500k_a ", "")  # Adjust this for specific cases if needed
 
             # Construct discovery payload for each sensor
             disc_payload = {
