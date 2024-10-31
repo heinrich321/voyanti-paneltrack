@@ -115,10 +115,13 @@ def ha_discovery(data):
 
         # Publish a discovery message for each parameter in data
         for parameter, details in data.items():
+            # Shorten the display name
+            short_name = parameter.replace("bcs500k_a ", "")  # Adjust this as needed for specific cases
+
             # Construct discovery payload for each sensor
             disc_payload = {
-                "name": parameter,
-                "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
+                "name": short_name,  # Use shortened name for display
+                "unique_id": "bcs_" + parameter.replace(" ", "_").lower(),  # Use 'bcs_' prefix for unique_id
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
                 "availability_topic": availability_topic,  # Add availability topic
                 "device": device
