@@ -114,9 +114,6 @@ def ha_discovery(data):
 
         # Publish a discovery message for each parameter in data
         for parameter, details in data.items():
-            # Shorten the display name
-            short_name = parameter.replace("bcs500k_a ", "")  # Adjust this as needed for specific cases
-
             # Construct discovery payload for each sensor
             disc_payload = {
                 "name": parameter,
