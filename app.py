@@ -119,7 +119,7 @@ def ha_discovery(data):
                 "name": parameter,
                 "unique_id": "kehua_" + parameter.replace(" ", "_").lower(),
                 "state_topic": f"{config['mqtt_base_topic']}/{parameter.replace(' ', '_').lower()}",
-                "availability_topic": availability_topic,  # Add availability topic
+                "availability_topic": availability_topic,
                 "device": device
             }
 
@@ -127,14 +127,14 @@ def ha_discovery(data):
             if parameter in ["Device Model", "Hardware Version", "Software Version", "HMI Version", "Manufacturer Info"]:
                 disc_payload["value_template"] = "{{ value }}"
                 # Explicitly ensure these fields are treated as text
-                disc_payload.pop("unit_of_measurement", None)  # Remove if it exists
-                disc_payload.pop("device_class", None)  # Remove if it exists
+                disc_payload.pop("unit_of_measurement", None)  # Remove unit if it exists
+                disc_payload.pop("device_class", None)  # Remove device_class if it exists
                 disc_payload.pop("state_class", None)  # Ensure no state_class is set
             
             # Cumulative metrics like Total Charge and Total Discharge
             elif parameter in ["Total Charge", "Total Discharge"]:
                 disc_payload["state_class"] = "total_increasing"
-                disc_payload["device_class"] = "energy"  # Optional, if you want it categorized as energy
+                disc_payload["device_class"] = "energy"
                 disc_payload["unit_of_measurement"] = "kWh"  # Assuming energy in kWh
             
             # Add device_class and unit_of_measurement based on parameter name for standard types
@@ -147,9 +147,18 @@ def ha_discovery(data):
             elif "current" in parameter.lower():
                 disc_payload["device_class"] = "current"
                 disc_payload["unit_of_measurement"] = "A"
-            elif "power" in parameter.lower():
+            elif "power factor" in parameter.lower():
+                disc_payload["device_class"] = "power_factor"
+                disc_payload.pop("unit_of_measurement", None)  # Remove unit for Power Factor
+            elif "apparent power" in parameter.lower():
+                disc_payload["device_class"] = "apparent_power"
+                disc_payload["unit_of_measurement"] = "kVA"  # Correct unit for apparent power
+            elif "reactive power" in parameter.lower():
+                disc_payload["device_class"] = "reactive_power"
+                disc_payload["unit_of_measurement"] = "kVar"  # Correct unit for reactive power
+            elif "active power" in parameter.lower():
                 disc_payload["device_class"] = "power"
-                disc_payload["unit_of_measurement"] = "kW"  # Use appropriate units for power metrics
+                disc_payload["unit_of_measurement"] = "kW"
             elif "frequency" in parameter.lower():
                 disc_payload["device_class"] = "frequency"
                 disc_payload["unit_of_measurement"] = "Hz"
@@ -165,7 +174,7 @@ def ha_discovery(data):
 
     else:
         print("HA Discovery Disabled")
-
+        
 def publish_state_data(data):
     for parameter, details in data.items():
         # Construct the state topic
