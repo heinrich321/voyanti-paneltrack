@@ -1,8 +1,8 @@
-name: "Voyanti Kehua Addon"
-description: "Voyanti Kehua Addon"
-version: "0.0.32"
-slug: "kehua_dev"
-url: "https://github.com/heinrich321/voyanti-kehua"
+name: "Voyanti Paneltrack Addon"
+description: "Voyanti Paneltrack Addon"
+version: "0.0.1"
+slug: "paneltrack"
+url: "https://github.com/heinrich321/voyanti-paneltrack"
 init: false
 arch:
   - aarch64
@@ -17,15 +17,17 @@ usb: true
 options:
   mqtt_host: "192.168.1.104"
   mqtt_port: 1883
-  mqtt_user: "mqtt-users"
+  mqtt_user: "mqtt"
   mqtt_password: "mqtt-users"
   mqtt_ha_discovery: true
   mqtt_ha_discovery_topic: "homeassistant"
-  mqtt_base_topic: "kehua"
+  mqtt_base_topic: "paneltrack"
   modbus_ip: "192.168.1.91"
-  modbus_port: 502
+  modbus_port: 1234
   scan_interval: 10
   debug_output: 0
+  device_address_list:
+   - 3
 schema:
   mqtt_host: str
   mqtt_port: int
@@ -38,3 +40,5 @@ schema:
   modbus_port: int
   scan_interval: int
   debug_output: int
+  device_address_list:
+   - int
