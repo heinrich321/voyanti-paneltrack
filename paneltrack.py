@@ -67,7 +67,7 @@ class PaneltrackClient:
         # result = self.client.read_input_registers(start_address, length, slave=1)
         if not result.isError():
             if reg_type == "FLOAT32":
-                return self._decode_float32(result.registers)
+                return round(self._decode_float32(result.registers), 2)
             elif reg_type == "INTEGER16":
                 return result.registers[0]
             elif reg_type == "INTEGER32":
