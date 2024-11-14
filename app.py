@@ -55,8 +55,6 @@ repub_discovery = 0
 MQTT_BASE_TOPIC = config['mqtt_base_topic']
 MQTT_HA_DISCOVERY_TOPIC = config['mqtt_ha_discovery_topic']
 
-kehua_model = None
-
 def on_connect(client, userdata, flags, reason_code, properties):
     print(f"Connected with result code {reason_code}")
     client.will_set(MQTT_BASE_TOPIC + "/availability","offline", qos=0, retain=False)
@@ -129,7 +127,7 @@ def ha_discovery(parameters):
 
             client.publish(availability_topic, "online", retain=True)
 
-print("Connecting to Kehua...")
+print("Connecting to Paneltrack...")
 paneltrack_client, paneltrack_client_connected = paneltrack_connect()
 
 parameters = paneltrack_client.get_reg_map()
@@ -137,21 +135,19 @@ parameters = paneltrack_client.get_reg_map()
 client.publish(MQTT_BASE_TOPIC + "/availability","offline")
 print_initial = True
 
-try:
-    kehua_model = paneltrack_client.read_model()
-except:
-    print("Error retrieving model")
-    quit()
-    
-
 
 while code_running == True:
     if paneltrack_client_connected == True:
         if mqtt_connected == True:
             if print_initial:
                 ha_discovery(parameters)
-                
-            client.publish(MQTT_BASE_TOPIC + "/availability","online")
+            
+            for meter_address in device_address_list:
+                for param, details in parameters.items():
+                    value = paneltrack_client.read_register(param)
+                    client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/{param.replace(' ', '_').lower()}", value, retain=True)
+            
+                client.publish(MQTT_BASE_TOPIC + "/availability","online")
 
             print_initial = False
             time.sleep(scan_interval)
