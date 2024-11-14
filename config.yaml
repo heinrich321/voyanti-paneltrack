@@ -1,6 +1,6 @@
 name: "Voyanti Paneltrack Addon"
 description: "Voyanti Paneltrack Addon"
-version: "0.0.3"
+version: "0.0.4"
 slug: "paneltrack"
 url: "https://github.com/heinrich321/voyanti-paneltrack"
 init: false
