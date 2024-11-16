@@ -54,7 +54,7 @@ class PaneltrackClient:
     def close(self):
         self.client.close()
 
-    def read_register(self, name):
+    def read_register(self, meter_address, name):
         if name not in self.register_map:
             raise ValueError(f"Register '{name}' is not defined in the register map.")
         
@@ -63,7 +63,7 @@ class PaneltrackClient:
         length = register["length"]
         reg_type = register["type"]
 
-        result = self.client.read_holding_registers(start_address-1, length, slave=0x03)
+        result = self.client.read_holding_registers(start_address-1, length, slave=meter_address)
         # result = self.client.read_input_registers(start_address, length, slave=1)
         if not result.isError():
             if reg_type == "FLOAT32":

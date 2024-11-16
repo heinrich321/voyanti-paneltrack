@@ -132,7 +132,8 @@ paneltrack_client, paneltrack_client_connected = paneltrack_connect()
 
 parameters = paneltrack_client.get_reg_map()
 
-client.publish(MQTT_BASE_TOPIC + "/availability","offline")
+for meter_address in device_address_list:
+    client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","offline")
 print_initial = True
 
 
@@ -144,10 +145,10 @@ while code_running == True:
             
             for meter_address in device_address_list:
                 for param, details in parameters.items():
-                    value = paneltrack_client.read_register(param)
+                    value = paneltrack_client.read_register(meter_address, param)
                     client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/{param.replace(' ', '_').lower()}", value, retain=True)
             
-                client.publish(MQTT_BASE_TOPIC + "/availability","online")
+                client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","online")
 
             print_initial = False
             time.sleep(scan_interval)
@@ -167,7 +168,8 @@ while code_running == True:
     else: #BMS not connected
         print("Client disconnected, trying to reconnect...")
         paneltrack_client, paneltrack_client_connected = paneltrack_connect()
-        client.publish(MQTT_BASE_TOPIC + "/availability","offline")
+        for meter_address in device_address_list:
+            client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","offline")
         time.sleep(5)
         print_initial = True
 
