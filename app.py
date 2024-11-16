@@ -145,7 +145,6 @@ while code_running == True:
             for meter_address in device_address_list:
                 for param, details in parameters.items():
                     value = paneltrack_client.read_register(param)
-                    time.sleep(0.2)
                     client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/{param.replace(' ', '_').lower()}", value, retain=True)
             
                 client.publish(MQTT_BASE_TOPIC + "/availability","online")

@@ -63,7 +63,7 @@ class PaneltrackClient:
         length = register["length"]
         reg_type = register["type"]
 
-        result = self.client.read_holding_registers(start_address, length, slave=0x03)
+        result = self.client.read_holding_registers(start_address-1, length, slave=0x03)
         # result = self.client.read_input_registers(start_address, length, slave=1)
         if not result.isError():
             if reg_type == "FLOAT32":
