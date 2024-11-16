@@ -76,11 +76,11 @@ class PaneltrackClient:
             print(f"Error reading register '{name}': {result}")
 
     def _decode_float32(self, registers):
-        raw = struct.pack('>HH', registers[1], registers[0])
+        raw = struct.pack('>HH', registers[0], registers[1])
         return struct.unpack('>f', raw)[0]
 
     def _decode_int32(self, registers):
-        raw = struct.pack('>HH', registers[1], registers[0])
+        raw = struct.pack('>HH', registers[0], registers[1])
         return struct.unpack('>I', raw)[0]
 
 # Example usage
