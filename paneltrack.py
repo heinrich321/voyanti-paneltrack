@@ -38,8 +38,8 @@ class PaneltrackClient:
         "Freq": {"start_address": 51, "length": 2, "type": "FLOAT32", "device_class": "frequency", "unit": "Hz"},
         "MonthkWhTotal": {"start_address": 53, "length": 2, "type": "FLOAT32", "device_class": "energy", "unit": "kWh"},
         "DaykWhTotal": {"start_address": 55, "length": 2, "type": "FLOAT32", "device_class": "energy", "unit": "kWh"},
-        "SumkWImportLong": {"start_address": 57, "length": 2, "type": "INTEGER32", "device_class": "energy", "unit": "kW"},
-        "SumkWExportLong": {"start_address": 59, "length": 2, "type": "INTEGER32", "device_class": "energy", "unit": "kW"}
+        "SumkWImportLong": {"start_address": 57, "length": 2, "type": "INTEGER32", "device_class": "energy", "unit": "kWh"},
+        "SumkWExportLong": {"start_address": 59, "length": 2, "type": "INTEGER32", "device_class": "energy", "unit": "kWh"}
     }
 
     def __init__(self, ip_address, port=502):
