@@ -120,8 +120,11 @@ def ha_discovery(parameters):
                     "availability_topic": availability_topic,
                     "device": device,
                     "device_class": details.get("device_class"),
-                    "unit_of_measurement": details.get("unit"),
+                    "unit_of_measurement": details.get("unit")
                 }
+                if "state_class" in details:
+                    discovery_payload["state_class"] = details["state_class"]
+                
                 discovery_topic = f"{MQTT_HA_DISCOVERY_TOPIC}/sensor/pt_{meter_address}/{param.replace(' ', '_').lower()}/config"
                 client.publish(discovery_topic, json.dumps(discovery_payload), retain=True)
 

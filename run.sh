@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 set -e
 
-echo "Hello Kehua"
+echo "Hello Paneltrack"
 
 # cd "${0%/*}"
 cd /workdir
