@@ -157,8 +157,10 @@ while code_running == True:
                 ha_discovery(parameters)
             
             for meter_address in device_address_list:
+                logging.info(f"Meter address {meter_address}")
                 for param, details in parameters.items():
                     value = paneltrack_client.read_register(meter_address, param)
+                    logging.info(f"{param} : {value}")
                     client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/{param.replace(' ', '_').lower()}", value, retain=True)
             
                 client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","online")
