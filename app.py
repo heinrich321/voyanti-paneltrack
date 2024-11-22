@@ -9,6 +9,16 @@ import sys
 import random
 import time
 from paneltrack import PaneltrackClient
+import logging
+from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Set logging level
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Format with timestamp
+    datefmt="%Y-%m-%d %H:%M:%S"  # Date format
+)
+
 
 def generate_uuid():
     # Generate random parts of the UUID
@@ -20,19 +30,19 @@ def generate_uuid():
     uuid_str = f'{timestamp:08x}-{random_part >> 32:04x}-{random_part & 0xFFFF:04x}-{node >> 24:04x}-{node & 0xFFFFFF:06x}'
     return uuid_str
 
-print("Starting up...")
+logging.info("Starting up...")
 
 config = {}
 script_version = ""
 
 if os.path.exists('/data/options.json'):
-    print("Loading options.json")
+    logging.info("Loading options.json")
     with open(r'/data/options.json') as file:
         config = json.load(file)
-        print("Config: " + json.dumps(config))
+        logging.info("Config: " + json.dumps(config))
 
 elif os.path.exists('paneltrack\\config.yaml'):
-    print("Loading config.yaml")
+    logging.info("Loading config.yaml")
     with open(r'paneltrack\\config.yaml') as file:
         config = yaml.load(file, Loader=yaml.FullLoader)['options']
         
@@ -56,13 +66,13 @@ MQTT_BASE_TOPIC = config['mqtt_base_topic']
 MQTT_HA_DISCOVERY_TOPIC = config['mqtt_ha_discovery_topic']
 
 def on_connect(client, userdata, flags, reason_code, properties):
-    print(f"Connected with result code {reason_code}")
+    logging.info(f"Connected with result code {reason_code}")
     client.will_set(MQTT_BASE_TOPIC + "/availability","offline", qos=0, retain=False)
     global mqtt_connected
     mqtt_connected = True
 
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
-    print("MQTT disconnected with result code "+str(reason_code))
+    logging.warning("MQTT disconnected with result code "+str(reason_code))
     global mqtt_connected
     mqtt_connected = False
 
@@ -78,7 +88,7 @@ client.loop_start()
 time.sleep(2)
 
 def exit_handler():
-    print("Script exiting")
+    logging.error("Script exiting")
     client.publish(MQTT_BASE_TOPIC + "/availability","offline")
     return
 
@@ -86,19 +96,19 @@ atexit.register(exit_handler)
 
 def paneltrack_connect():
     try:
-        print("trying to connect %s" % modbus_ip)
+        logging.info("trying to connect %s" % modbus_ip)
         paneltrack_client = PaneltrackClient(modbus_ip, port=modbus_port)
         connected = paneltrack_client.connect()
-        print("Modem connected")
+        logging.info("Modem connected")
         return paneltrack_client, connected
     except IOError as msg:
-        print("Modem error connecting: %s" % msg)
+        logging.error("Modem error connecting: %s" % msg)
         return False
 
 def ha_discovery(parameters):
     for meter_address in device_address_list:
         if ha_discovery_enabled:
-            print("Publishing HA Discovery topics...")
+            logging.info("Publishing HA Discovery topics...")
             # Define device information
             device = {
                 "manufacturer": "Paneltrack",
@@ -130,7 +140,7 @@ def ha_discovery(parameters):
 
             client.publish(availability_topic, "online", retain=True)
 
-print("Connecting to Paneltrack...")
+logging.info("Connecting to Paneltrack...")
 paneltrack_client, paneltrack_client_connected = paneltrack_connect()
 
 parameters = paneltrack_client.get_reg_map()
@@ -163,13 +173,13 @@ while code_running == True:
         
         else: #MQTT not connected
             client.loop_stop()
-            print("MQTT disconnected, trying to reconnect...")
+            logging.error("MQTT disconnected, trying to reconnect...")
             client.connect(config['mqtt_host'], config['mqtt_port'], 60)
             client.loop_start()
             time.sleep(5)
             print_initial = True
     else: #BMS not connected
-        print("Client disconnected, trying to reconnect...")
+        logging.error("Client disconnected, trying to reconnect...")
         paneltrack_client, paneltrack_client_connected = paneltrack_connect()
         for meter_address in device_address_list:
             client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","offline")
