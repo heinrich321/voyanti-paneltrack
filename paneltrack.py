@@ -1,11 +1,14 @@
 from pymodbus.client import ModbusTcpClient
 import struct
 import logging
+from datetime import datetime
 
-# Configure logging to display debug output
-# logging.basicConfig()
-# log = logging.getLogger()
-# log.setLevel(logging.DEBUG)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Set logging level
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Format with timestamp
+    datefmt="%Y-%m-%d %H:%M:%S"  # Date format
+)
 
 class PaneltrackClient:
     register_map = {
@@ -73,7 +76,7 @@ class PaneltrackClient:
             elif reg_type == "INTEGER32":
                 return self._decode_int32(result.registers)
         else:
-            print(f"Error reading register '{name}': {result}")
+            logging.error(f"Error reading register '{name}': {result}")
 
     def _decode_float32(self, registers):
         raw = struct.pack('>HH', registers[0], registers[1])
@@ -91,19 +94,19 @@ if __name__ == "__main__":
     if reader.connect():
         try:
             vab = reader.read_register("Vab")
-            print(f"Vab: {vab} V")
+            logging.info(f"Vab: {vab} V")
 
             va = reader.read_register("Va")
-            print(f"Va: {va} V")
+            logging.info(f"Va: {va} V")
 
             ia = reader.read_register("Ia")
-            print(f"Ia: {ia} A")
+            logging.info(f"Ia: {ia} A")
 
             pa = reader.read_register("Pa")
-            print(f"Pa: {pa} W")
+            logging.info(f"Pa: {pa} W")
 
             # More register reads as needed
         finally:
             reader.close()
     else:
-        print("Failed to connect to the Modbus server.")
+        logging.error("Failed to connect to the Modbus server.")
