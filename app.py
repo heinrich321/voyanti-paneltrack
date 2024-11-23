@@ -151,40 +151,37 @@ print_initial = True
 
 
 while code_running == True:
-    if paneltrack_client_connected == True:
-        if mqtt_connected == True:
-            if print_initial:
-                ha_discovery(parameters)
-            
-            for meter_address in device_address_list:
-                logging.info(f"Meter address {meter_address}")
+    if mqtt_connected == True:
+        if print_initial:
+            ha_discovery(parameters)
+        
+        for meter_address in device_address_list:
+            logging.info(f"Meter address {meter_address}")
+            try:
                 for param, details in parameters.items():
                     value = paneltrack_client.read_register(meter_address, param)
                     logging.info(f"{param} : {value}")
                     client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/{param.replace(' ', '_').lower()}", value, retain=True)
-            
-                client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","online")
+                    client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","online")
+            except:
+                client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","offline")
+                paneltrack_client.close()
+                paneltrack_client.connect()
+                
 
-            print_initial = False
-            time.sleep(scan_interval)
+        print_initial = False
+        time.sleep(scan_interval)
 
-            repub_discovery += 1
-            if repub_discovery*scan_interval > 3600:
-                repub_discovery = 0
-                print_initial = True
-        
-        else: #MQTT not connected
-            client.loop_stop()
-            logging.error("MQTT disconnected, trying to reconnect...")
-            client.connect(config['mqtt_host'], config['mqtt_port'], 60)
-            client.loop_start()
-            time.sleep(5)
+        repub_discovery += 1
+        if repub_discovery*scan_interval > 3600:
+            repub_discovery = 0
             print_initial = True
-    else: #BMS not connected
-        logging.error("Client disconnected, trying to reconnect...")
-        paneltrack_client, paneltrack_client_connected = paneltrack_connect()
-        for meter_address in device_address_list:
-            client.publish(f"{MQTT_BASE_TOPIC}/{meter_address}/availability","offline")
+    
+    else: #MQTT not connected
+        client.loop_stop()
+        logging.error("MQTT disconnected, trying to reconnect...")
+        client.connect(config['mqtt_host'], config['mqtt_port'], 60)
+        client.loop_start()
         time.sleep(5)
         print_initial = True
 

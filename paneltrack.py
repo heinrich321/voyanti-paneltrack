@@ -77,6 +77,8 @@ class PaneltrackClient:
                 return self._decode_int32(result.registers)
         else:
             logging.error(f"Error reading register '{name}': {result}")
+            raise ValueError(f"Error reading register '{name}': {result}")
+            
 
     def _decode_float32(self, registers):
         raw = struct.pack('>HH', registers[0], registers[1])
