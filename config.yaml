@@ -1,6 +1,6 @@
 name: "Voyanti Paneltrack Addon"
 description: "Voyanti Paneltrack Addon"
-version: "0.0.16"
+version: "0.1.0"
 slug: "paneltrack"
 url: "https://github.com/heinrich321/voyanti-paneltrack"
 init: false
@@ -14,6 +14,7 @@ arch:
 uart: true
 usb: true
 startup: system
+boot: auto
 
 options:
   mqtt_host: "192.168.1.104"
