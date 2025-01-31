@@ -39,8 +39,8 @@ class PaneltrackClient:
         "SSum": {"start_address": 47, "length": 2, "type": "FLOAT32", "device_class": "apparent_power", "unit": "VA"},
         "pfSum": {"start_address": 49, "length": 2, "type": "FLOAT32", "device_class": "power_factor", "unit": ""},
         "Freq": {"start_address": 51, "length": 2, "type": "FLOAT32", "device_class": "frequency", "unit": "Hz"},
-        "MonthkWhTotal": {"start_address": 53, "length": 2, "type": "FLOAT32", "device_class": "energy", "unit": "kWh"},
-        "DaykWhTotal": {"start_address": 55, "length": 2, "type": "FLOAT32", "device_class": "energy", "unit": "kWh"},
+        "MonthkWhTotal": {"start_address": 53, "length": 2, "type": "FLOAT32", "state_class": "total_increasing", "unit": "kWh"},
+        "DaykWhTotal": {"start_address": 55, "length": 2, "type": "FLOAT32", "state_class": "total_increasing", "unit": "kWh"},
         "TotalImportEnergy": {"start_address": 57, "length": 2, "type": "INTEGER32", "state_class": "total_increasing", "device_class": "energy", "unit": "kWh"},
         "TotalExportEnergy": {"start_address": 59, "length": 2, "type": "INTEGER32", "state_class": "total_increasing", "device_class": "energy", "unit": "kWh"}
     }
