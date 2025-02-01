@@ -118,7 +118,7 @@ def ha_discovery(parameters):
             }
 
             # Base availability topic
-            availability_topic = f"{MQTT_BASE_TOPIC}_{meter_address}/availability"
+            availability_topic = f"{MQTT_BASE_TOPIC}/{meter_address}/availability"
 
             # Define all sensor parameters and publish discovery messages
 
